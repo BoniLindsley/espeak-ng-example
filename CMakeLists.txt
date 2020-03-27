@@ -29,11 +29,35 @@ install(
 #
 # ### Link dependencies
 
-find_package(espeak-ng REQUIRED)
-target_link_libraries(${TARGET_NAME} espeak-ng::espeak-ng)
+find_package(espeak-ng QUIET)
+if(TARGET espeak-ng::espeak-ng)
+  target_link_libraries(${TARGET_NAME} espeak-ng::espeak-ng)
+else()
+  if(NOT espeak-ng_FOUND)
+    find_library(espeak-ng_LIBRARY "espeak-ng")
+    set(espeak-ng_LIBRARIES "${espeak-ng_LIBRARY}")
+    find_path(espeak-ng_INCLUDE_DIRECTORY "espeak-ng/espeak_ng.h")
+    set(espeak-ng_INCLUDE_DIRECTORIES "${espeak-ng_INCLUDE_DIRECTORY}")
+  endif()
+  target_link_libraries(${TARGET_NAME} "${espeak-ng_LIBRARIES}")
+  target_Include_directories(${TARGET_NAME}
+    PRIVATE "${espeak-ng_INCLUDE_DIRS}")
+endif()
 
-find_package(SDL2 REQUIRED)
-target_link_libraries(${TARGET_NAME} SDL2::SDL2)
+find_package(SDL2 QUIET)
+if(TARGET SDL2::SDL2)
+  target_link_libraries(${TARGET_NAME} SDL2::SDL2)
+else()
+  if(NOT SDL2_FOUND)
+    find_library(SDL2_LIBRARY "SDL2")
+    set(SDL2_LIBRARIES "${SDL2_LIBRARY}")
+    find_path(SDL2_INCLUDE_DIR "SDL2/SDL.h")
+    set(SDL2_INCLUDE_DIRS "${SDL2_INCLUDE_DIR}")
+  endif()
+  target_link_libraries(${TARGET_NAME} "${SDL2_LIBRARIES}")
+  target_Include_directories(${TARGET_NAME}
+    PRIVATE "${SDL2_INCLUDE_DIRS}")
+endif()
 
 #
 # ### Documentation
